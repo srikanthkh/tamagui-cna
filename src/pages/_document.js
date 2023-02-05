@@ -1,13 +1,33 @@
-import { Html, Head, Main, NextScript } from 'next/document'
+import NextDocument, { Head, Html, Main, NextScript } from 'next/document'
+import { Children } from 'react'
+import { AppRegistry } from 'react-native'
 
-export default function Document() {
-  return (
-    <Html lang="en">
-      <Head />
-      <body>
-        <Main />
-        <NextScript />
-      </body>
-    </Html>
-  )
+import Tamagui from '../../tamagui.config'
+
+export default class Document extends NextDocument {
+  static async getInitialProps({ renderPage }) {
+    AppRegistry.registerComponent('Main', () => Main)
+    const page = await renderPage()
+    const { getStyleElement } = AppRegistry.getApplication('Main')
+    const styles = [
+      getStyleElement(),
+      <style key="tamagui-css" dangerouslySetInnerHTML={{ __html: Tamagui.getCSS() }} />,
+    ]
+
+    return { ...page, styles: Children.toArray(styles) }
+  }
+
+  render() {
+    return (
+      <Html>
+        <Head>
+          <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        </Head>
+        <body>
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    )
+  }
 }
